@@ -5,5 +5,5 @@ import pl.coderslab.receiver.model.League;
 
 public interface LeagueRepository extends JpaRepository<League, Long>
 {
-
+    League findByName (String name);
 }

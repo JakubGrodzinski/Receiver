@@ -1,6 +1,7 @@
 package pl.coderslab.receiver.service;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import pl.coderslab.receiver.DTO.CountryDto;
@@ -41,6 +42,24 @@ public class ReceiveDataService
     public EventDto[] receiveEvents ()
     {
         String url = "http://localhost:8090/events";
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<EventDto[]> responseLeagues = restTemplate.getForEntity(url, EventDto[].class);
+        EventDto[] events = responseLeagues.getBody();
+        return events;
+    }
+    @Scheduled(fixedRate = 4000)
+    public EventDto[] receiveOngoingEvents ()
+    {
+        String url = "http://localhost:8090/ongoing";
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<EventDto[]> responseLeagues = restTemplate.getForEntity(url, EventDto[].class);
+        EventDto[] events = responseLeagues.getBody();
+        return events;
+    }
+    @Scheduled(fixedRate = 4000)
+    public EventDto[] receiveFinishedEvents ()
+    {
+        String url = "http://localhost:8090/finished";
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<EventDto[]> responseLeagues = restTemplate.getForEntity(url, EventDto[].class);
         EventDto[] events = responseLeagues.getBody();

@@ -35,12 +35,6 @@ public class GetDataController
     @ResponseBody
     public String getCountriesAction()
     {
-        CountryDto[] countries = receiveDataService.receivedCountries();
-        for (CountryDto countryDto: countries)
-        {
-            Country country = countryConverter.convert(countryDto);
-            countryRepository.save(country);
-        }
         return "Hello from the other side";
     }
 }

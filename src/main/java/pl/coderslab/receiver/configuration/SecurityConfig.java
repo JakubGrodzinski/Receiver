@@ -3,6 +3,7 @@ package pl.coderslab.receiver.configuration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -30,26 +31,51 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter
         return new BCryptPasswordEncoder();
     }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.
-                jdbcAuthentication()
-                .usersByUsernameQuery("Select username, password, enabled from users where username = ?")
-                .authoritiesByUsernameQuery("Select u.username, r.role from users u join users_roles ur on u.id=ur.users_id join role r on r.role_id=ur.roles_role_id where u.username=?")
-                .dataSource(dataSource)
-                .passwordEncoder(passwordEncoder())
-                ;
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(customUserDetailsService());
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
     }
 
     @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.authenticationProvider(authenticationProvider());
+    }
+
+//    @Override
+//    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+//        auth.
+//                jdbcAuthentication()
+////                .usersByUsernameQuery("Select username, password, enabled from users where username = ?")
+//                .authoritiesByUsernameQuery("Select u.username, r.role from users u join users_roles ur on u.id=ur.users_id join role r on r.role_id=ur.roles_role_id where u.username=?")
+//                .dataSource(dataSource)
+//                .passwordEncoder(passwordEncoder())
+//                ;
+//    }
+
+
+    @Override
     protected void configure(HttpSecurity http) throws Exception {
+
         http
+
                 .csrf().disable()
+
                 .authorizeRequests()
+
                 .antMatchers("/user/**").fullyAuthenticated()
+
+//                .antMatchers("/admin").hasRole("ADMIN")
+
                 .anyRequest().permitAll()
-                .and().formLogin().loginPage("/login").successForwardUrl("/user/get-countries")
-                ;
+
+                .and().formLogin().defaultSuccessUrl("/user/get-countries")
+
+//            .loginPage("/login")
+        ;
+
     }
 
 }
